@@ -29,9 +29,9 @@ import "./interfaces/IFeeDistributor.sol";
 
 /**
  * @title Fee Distributor
- * @notice Distributes any tokens transferred to the contract (e.g. Protocol fees and any BAL emissions) among veBAL
+ * @notice Distributes any tokens transferred to the contract (e.g. Protocol fees and any token emissions) among vetoken
  * holders proportionally based on a snapshot of the week at which the tokens are sent to the FeeDistributor contract.
- * @dev Supports distributing arbitrarily many different tokens. In order to start distributing a new token to veBAL
+ * @dev Supports distributing arbitrarily many different tokens. In order to start distributing a new token to vetoken
  * holders simply transfer the tokens to the `FeeDistributor` contract and then call `checkpointToken`.
  */
 contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard {
@@ -122,7 +122,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
     /// -----------------------------------------------------------------------
 
     /**
-     * @notice Returns the VotingEscrow (veBAL) token contract
+     * @notice Returns the VotingEscrow (vetoken) token contract
      */
     function getVotingEscrow() external view override returns (IVotingEscrow) {
         return _votingEscrow;
@@ -161,7 +161,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
     }
 
     /**
-     * @notice Returns the user's cached balance of veBAL as of the provided timestamp.
+     * @notice Returns the user's cached balance of vetoken as of the provided timestamp.
      * @dev Only timestamps which fall on Thursdays 00:00:00 UTC will return correct values.
      * This function requires `user` to have been checkpointed past `timestamp` so that their balance is cached.
      * @param user - The address of the user of which to read the cached balance of.
@@ -172,7 +172,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
     }
 
     /**
-     * @notice Returns the cached total supply of veBAL as of the provided timestamp.
+     * @notice Returns the cached total supply of vetoken as of the provided timestamp.
      * @dev Only timestamps which fall on Thursdays 00:00:00 UTC will return correct values.
      * This function requires the contract to have been checkpointed past `timestamp` so that the supply is cached.
      * @param timestamp - The timestamp at which to read the cached total supply at.
@@ -246,7 +246,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
     // Checkpointing
 
     /**
-     * @notice Caches the total supply of veBAL at the beginning of each week.
+     * @notice Caches the total supply of vetoken at the beginning of each week.
      * This function will be called automatically before claiming tokens to ensure the contract is properly updated.
      */
     function checkpoint() external override nonReentrant {
@@ -254,7 +254,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
     }
 
     /**
-     * @notice Caches the user's balance of veBAL at the beginning of each week.
+     * @notice Caches the user's balance of vetoken at the beginning of each week.
      * This function will be called automatically before claiming tokens to ensure the contract is properly updated.
      * @param user - The address of the user to be checkpointed.
      */
@@ -501,7 +501,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
     function _checkpointUserBalance(address user) internal {
         uint256 maxUserEpoch = _votingEscrow.user_point_epoch(user);
 
-        // If user has no epochs then they have never locked veBAL.
+        // If user has no epochs then they have never locked vetoken.
         // They clearly will not then receive fees.
         if (maxUserEpoch == 0) return;
 
@@ -656,7 +656,7 @@ contract FeeDistributor is IFeeDistributor, OptionalOnlyCaller, ReentrancyGuard 
         uint256 userTimeCursor = _userTokenTimeCursor[user][token];
         if (userTimeCursor > 0) return userTimeCursor;
         // This is the first time that the user has interacted with this token.
-        // We then start from the latest out of either when `user` first locked veBAL or `token` was first checkpointed.
+        // We then start from the latest out of either when `user` first locked vetoken or `token` was first checkpointed.
         return Math.max(_userState[user].startTime, _tokenState[token].startTime);
     }
 
