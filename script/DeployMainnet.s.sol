@@ -18,7 +18,7 @@ contract DeployScript is Script {
 
         deployed = FeeDistributor(
             create3.deploy(
-                keccak256("FeeDistributor"),
+                keccak256("FeeDistributor-veLIT"),
                 bytes.concat(type(FeeDistributor).creationCode, abi.encode(votingEscrow, startTime))
             )
         );
